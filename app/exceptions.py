@@ -1,41 +1,41 @@
 from fastapi import HTTPException, status
 
 
+def raise_http_exception(status_code: int, detail: str, headers: dict = None):
+    raise HTTPException(
+        status_code=status_code,
+        detail=detail,
+        headers=headers,
+    )
+
+
 def raise_username_already_registered():
-    raise HTTPException(status_code=400, detail="Username already registered")
+    raise_http_exception(400, "Username already registered")
 
 
 def raise_incorrect_username_or_password():
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Incorrect username or password",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    raise_http_exception(401, "Incorrect username or password", {"WWW-Authenticate": "Bearer"})
 
 
 def raise_post_not_found():
-    raise HTTPException(status_code=404, detail="Post not found")
+    raise_http_exception(404, "Post not found")
 
 
 def raise_not_enough_permissions():
-    raise HTTPException(status_code=403, detail="Not enough permissions")
+    raise_http_exception(403, "Not enough permissions")
 
 
 def raise_credentials_exception():
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token expired or invalid",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    raise_http_exception(401, "Token expired or invalid", {"WWW-Authenticate": "Bearer"})
 
 
 def raise_like_own_post():
-    raise HTTPException(status_code=400, detail="Can't like own posts")
+    raise_http_exception(400, "Can't like own posts")
 
 
 def raise_already_liked():
-    raise HTTPException(status_code=400, detail="Already liked/disliked")
+    raise_http_exception(400, "Already liked/disliked")
 
 
 def raise_like_not_found():
-    raise HTTPException(status_code=404, detail="Like not found")
+    raise_http_exception(404, "Like not found")
