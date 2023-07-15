@@ -1,9 +1,9 @@
-from typing import List
+from typing import List, Dict
 from fastapi import Depends, APIRouter
 
 from sqlalchemy.orm import Session
 
-from .. import crud, models, schemas, database, dependencies, exceptions
+from app import crud, models, schemas, database, dependencies, exceptions
 
 router = APIRouter()
 
@@ -86,3 +86,24 @@ def delete_post(
     )
 
     return detail
+
+
+@router.get("/likes/{post_id}", response_model=Dict[str, List[int]])
+def get_likes(
+        post_id: int,
+        db: Session = Depends(database.get_db),
+        current_user: models.User = Depends(dependencies.get_current_user)
+):
+    post = db.query(models.Post).filter(models.Post.id == post_id).first()
+    if not post:
+        exceptions.raise_post_not_found()
+
+    likes = db.query(models.Like).filter(models.Like.post_id == post_id).all()
+
+    like_user_ids = [like.user_id for like in likes if like.value == 1]
+    dislike_user_ids = [like.user_id for like in likes if like.value == -1]
+
+    return {
+        "likes": like_user_ids,
+        "dislikes": dislike_user_ids
+    }
