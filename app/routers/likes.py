@@ -1,22 +1,28 @@
-from typing import Dict, List
+from typing import Dict, Any
 
 from fastapi import Depends, APIRouter
+
 from sqlalchemy.orm import Session
-from .. import exceptions, database, crud, schemas, dependencies
+
+from app import exceptions, database, crud, schemas, dependencies
 
 router = APIRouter()
 
+DETAIL_MESSAGES = {
+    -1: {"detail": "Post disliked"},
+    1: {"detail": "Post liked"},
+    "deleted": {"detail": "Like deleted"}
+}
 
-@router.post("/{post_id}")
+
+@router.post("/{post_id}", response_model=Dict[str, Any])
 def add_like(
         post_id: int,
         like: schemas.LikeCreate,
         db: Session = Depends(database.get_db),
         current_user: schemas.User = Depends(dependencies.get_current_user)
-):
+) -> Dict[str, Any]:
     post = crud.get_post(db, post_id)
-    detail_disliked = {"detail": "Post disliked"}
-    detail_liked = {"detail": "Post liked"}
 
     if not post:
         exceptions.raise_post_not_found()
@@ -31,32 +37,32 @@ def add_like(
     )
 
     if existing_like:
-        if existing_like.value == like.value:
-            exceptions.raise_already_liked()
-        else:
+        if existing_like.value != like.value:
             existing_like.value = like.value
             db.commit()
-            return detail_disliked if like.value == -1 else detail_liked
+            return DETAIL_MESSAGES.get(like.value)
+
+        exceptions.raise_already_liked()
 
     like = schemas.LikeBase(post_id=post_id, value=like.value)
     crud.create_like(db=db, like=like, user_id=current_user.id)
-    return detail_liked if like.value == 1 else detail_disliked
+    return DETAIL_MESSAGES.get(like.value)
 
 
-@router.delete("/{post_id}")
+@router.delete("/{post_id}", response_model=Dict[str, Any])
 def remove_like(
         post_id: int,
         db: Session = Depends(database.get_db),
         current_user: schemas.User = Depends(dependencies.get_current_user)
-):
+) -> Dict[str, Any]:
     like = crud.get_like_by_user_and_post(
         db,
         user_id=current_user.id,
         post_id=post_id
     )
-    detail_deleted = {"detail": "Like deleted"}
 
     if not like:
         exceptions.raise_like_not_found()
+
     crud.delete_like(db=db, like_id=like.id)
-    return detail_deleted
+    return DETAIL_MESSAGES.get("deleted")

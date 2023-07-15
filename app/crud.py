@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from . import models, schemas, security
+from app import models, schemas, security
 
 
 def get_user_by_username(db: Session, username: str):
