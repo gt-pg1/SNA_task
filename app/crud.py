@@ -87,3 +87,37 @@ def update_post(db: Session, post_id: int, post_in: schemas.PostCreate):
 
     db.commit()
     return db_post
+
+
+def get_like(db: Session, like_id: int):
+    like = db.query(
+        models.Like
+    ).filter(
+        models.Like.id == like_id
+    ).first()
+    return like
+
+
+def get_like_by_user_and_post(db: Session, user_id: int, post_id: int):
+    like = db.query(
+        models.Like
+    ).filter(
+        models.Like.user_id == user_id,
+        models.Like.post_id == post_id
+    ).first()
+    return like
+
+
+def create_like(db: Session, like: schemas.LikeCreate, user_id: int):
+    db_like = models.Like(**like.model_dump(), user_id=user_id)
+    db.add(db_like)
+    db.commit()
+    db.refresh(db_like)
+    return db_like
+
+
+def delete_like(db: Session, like_id: int):
+    like = get_like(db, like_id)
+    db.delete(like)
+    db.commit()
+    return {"detail": "Like deleted"}
