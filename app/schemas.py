@@ -41,13 +41,12 @@ class PostDelete(BaseModel):
 
 
 class LikeBase(BaseModel):
-    user_id: int
     post_id: int
     value: int
 
 
-class LikeCreate(LikeBase):
-    pass
+class LikeCreate(BaseModel):
+    value: int
 
 
 class Like(LikeBase):
