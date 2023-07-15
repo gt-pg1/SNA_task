@@ -27,3 +27,15 @@ def raise_credentials_exception():
         detail="Token expired or invalid",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+
+def raise_like_own_post():
+    raise HTTPException(status_code=400, detail="Can't like own posts")
+
+
+def raise_already_liked():
+    raise HTTPException(status_code=400, detail="Already liked/disliked")
+
+
+def raise_like_not_found():
+    raise HTTPException(status_code=404, detail="Like not found")
