@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -34,6 +36,10 @@ class Post(PostBase):
         from_attributes = True
 
 
+class PostDelete(BaseModel):
+    detail: str
+
+
 class LikeBase(BaseModel):
     user_id: int
     post_id: int
@@ -54,3 +60,7 @@ class Like(LikeBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class TokenData(BaseModel):
+    username: Optional[str] = None

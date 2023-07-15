@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from app.models import Base
 
 
@@ -17,3 +18,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
