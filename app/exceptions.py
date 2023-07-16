@@ -21,6 +21,10 @@ def raise_incorrect_username_or_password():
     )
 
 
+def raise_password_too_short():
+    raise_http_exception(400, "The password must be longer than 8 characters.")
+
+
 def raise_post_not_found():
     raise_http_exception(404, "Post not found")
 

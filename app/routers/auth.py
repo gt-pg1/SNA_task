@@ -25,6 +25,14 @@ def register(
     If successful, returns the user data.
     """
 
+    if len(user.password) < 8:
+        exceptions.raise_password_too_short()
+
+    db_user = crud.get_user_by_username(db, username=user.username)
+
+    if db_user:
+        exceptions.raise_username_already_registered()
+
     # Да, костыль. Но это для удобства проверки тестового задания)
     email_status = 'valid'
     if 'clearbit' not in user.email or 'example' not in user.email:
@@ -32,11 +40,6 @@ def register(
 
     if email_status != 'valid':
         exceptions.raise_invalid_email_hunter()
-
-    db_user = crud.get_user_by_username(db, username=user.username)
-
-    if db_user:
-        exceptions.raise_username_already_registered()
 
     return crud.create_user(db=db, user=user)
 
