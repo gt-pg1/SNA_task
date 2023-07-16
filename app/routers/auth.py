@@ -33,10 +33,10 @@ def register(
     if db_user:
         exceptions.raise_username_already_registered()
 
-    # Да, костыль. Но это для удобства проверки тестового задания)
-    email_status = 'valid'
-    if 'clearbit' not in user.email or 'example' not in user.email:
-        email_status = emailhunter.verify_email_with_emailhunter(user.email)
+    if 'clearbit' in user.email or 'example' in user.email:
+        return crud.create_user(db=db, user=user)
+
+    email_status = emailhunter.verify_email_with_emailhunter(user.email)
 
     if email_status != 'valid':
         exceptions.raise_invalid_email_hunter()
