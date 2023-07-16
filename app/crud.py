@@ -63,8 +63,10 @@ def authenticate_user(db: Session, username: str, password: str):
         ValueError: If the authentication fails.
     """
     user = get_user_by_username(db, username)
+    if not user:
+        raise ValueError("Invalid username or password")
     verify_password = security.verify_password(password, user.hashed_password)
-    if not user or not verify_password:
+    if not verify_password:
         raise ValueError("Invalid username or password")
     return user
 

@@ -52,8 +52,9 @@ def login(
     """
     Authenticate a user and return an access token if successful.
     """
-    user = crud.authenticate_user(db, form_data.username, form_data.password)
-    if not user:
+    try:
+        user = crud.authenticate_user(db, form_data.username, form_data.password)
+    except ValueError:
         exceptions.raise_incorrect_username_or_password()
 
     access_token = security.create_access_token(
