@@ -100,8 +100,12 @@ def get_likes(
 
     likes = crud.get_likes(db, post_id)
 
-    like_user_ids = [like['user_id'] for like in likes if like['value'] == 1]
-    dislike_user_ids = [like['user_id'] for like in likes if like['value'] == -1]
+    like_user_ids = [
+        like['user_id'] for like in likes if like['value'] == 1
+    ]
+    dislike_user_ids = [
+        like['user_id'] for like in likes if like['value'] == -1
+    ]
 
     return {
         "likes": like_user_ids,

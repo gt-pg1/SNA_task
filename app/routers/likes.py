@@ -69,10 +69,8 @@ def remove_like(
     if not like:
         exceptions.raise_like_not_found()
 
-    # remove like from database and Redis at once
-    crud.delete_like_and_remove_redis(db=db, post_id=post_id, user_id=current_user.id)
+    crud.delete_like(db=db, post_id=post_id, user_id=current_user.id)
 
-    # now check again
     like = crud.get_like_by_user_and_post(
         db,
         user_id=current_user.id,
@@ -83,4 +81,3 @@ def remove_like(
         return DETAIL_MESSAGES.get("deleted")
     else:
         exceptions.raise_like_not_found()
-

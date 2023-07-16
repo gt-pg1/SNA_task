@@ -95,8 +95,13 @@ def get_likes(db: Session, post_id: int):
     likes_from_redis = main.r.hgetall(key)
 
     if likes_from_redis:
-        likes = [{'user_id': int(user_id.decode().split(':')[1]), 'value': int(value.decode())} for user_id, value in
-                 likes_from_redis.items()]
+        likes = [
+            {
+                'user_id': int(user_id.decode().split(':')[1]),
+                'value': int(value.decode())
+            }
+            for user_id, value in likes_from_redis.items()
+        ]
     else:
         likes_db = db.query(
             models.Like
@@ -104,11 +109,15 @@ def get_likes(db: Session, post_id: int):
             models.Like.post_id == post_id
         ).all()
 
-        likes = [{'user_id': like.user_id, 'value': like.value} for like in likes_db]
+        likes = [
+            {
+                'user_id': like.user_id,
+                'value': like.value
+            } for like in likes_db
+        ]
 
         for like in likes_db:
             save_redis_like(post_id, like.user_id, like.value)
-    print(f'Fetching likes for post {post_id} directly from Redis: {main.r.hgetall(key)}')
     return likes
 
 
@@ -131,7 +140,6 @@ def get_like_by_user_and_post(db: Session, user_id: int, post_id: int):
     return {'like_id': like.id, 'value': like.value, 'from_redis': False}
 
 
-
 def create_like(db: Session, like: schemas.LikeCreate, user_id: int):
     db_like = models.Like(**like.model_dump(), user_id=user_id)
     db.add(db_like)
@@ -147,7 +155,6 @@ def delete_like(db: Session, post_id: int, user_id: int):
         models.Like.user_id == user_id,
         models.Like.post_id == post_id
     ).first()
-    print('delete like called')
 
     if like is None:
         return None
@@ -177,24 +184,3 @@ def remove_redis_like(post_id: int, user_id: int):
     main.r.hdel(key, field)
     if not main.r.hkeys(key):
         main.r.delete(key)
-    print('delete from redis')
-
-
-
-def delete_like_and_remove_redis(db: Session, post_id: int, user_id: int):
-    like = db.query(
-        models.Like
-    ).filter(
-        models.Like.user_id == user_id,
-        models.Like.post_id == post_id
-    ).first()
-    print('delete like called')
-
-    if like is None:
-        return None
-
-    db.delete(like)
-    db.commit()
-    remove_redis_like(post_id, user_id)
-    print('delete from redis')
-    return {"detail": "Like deleted"}
