@@ -98,10 +98,10 @@ def get_likes(
     if not post:
         exceptions.raise_post_not_found()
 
-    likes = db.query(models.Like).filter(models.Like.post_id == post_id).all()
+    likes = crud.get_likes(db, post_id)
 
-    like_user_ids = [like.user_id for like in likes if like.value == 1]
-    dislike_user_ids = [like.user_id for like in likes if like.value == -1]
+    like_user_ids = [like['user_id'] for like in likes if like['value'] == 1]
+    dislike_user_ids = [like['user_id'] for like in likes if like['value'] == -1]
 
     return {
         "likes": like_user_ids,

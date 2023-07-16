@@ -37,15 +37,20 @@ def add_like(
     )
 
     if existing_like:
-        if existing_like.value != like.value:
-            existing_like.value = like.value
-            db.commit()
+        if existing_like['value'] != like.value:
+            if existing_like['from_redis']:
+                print('to redis')
+                crud.save_redis_like(post_id, current_user.id, like.value)
+            else:
+                existing_like['value'] = like.value
+                db.commit()
             return DETAIL_MESSAGES.get(like.value)
 
         exceptions.raise_already_liked()
 
     like = schemas.LikeBase(post_id=post_id, value=like.value)
     crud.create_like(db=db, like=like, user_id=current_user.id)
+    crud.save_redis_like(post_id, current_user.id, like.value)
     return DETAIL_MESSAGES.get(like.value)
 
 
@@ -64,5 +69,18 @@ def remove_like(
     if not like:
         exceptions.raise_like_not_found()
 
-    crud.delete_like(db=db, like_id=like.id)
-    return DETAIL_MESSAGES.get("deleted")
+    # remove like from database and Redis at once
+    crud.delete_like_and_remove_redis(db=db, post_id=post_id, user_id=current_user.id)
+
+    # now check again
+    like = crud.get_like_by_user_and_post(
+        db,
+        user_id=current_user.id,
+        post_id=post_id
+    )
+
+    if not like or like['from_redis']:
+        return DETAIL_MESSAGES.get("deleted")
+    else:
+        exceptions.raise_like_not_found()
+
