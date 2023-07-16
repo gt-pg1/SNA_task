@@ -1,8 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from .. import crud, schemas, database, security, exceptions
+from app import crud, \
+    schemas, \
+    database, \
+    security, \
+    exceptions, \
+    clearbit, \
+    models, \
+    dependencies
 
 router = APIRouter()
 
@@ -38,3 +45,20 @@ def login(
         data={"username": user.username}
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/clearbit")
+def clearbit_route(
+        current_user: models.User = Depends(dependencies.get_current_user)
+):
+    """
+    Fetches Clearbit data for an active user email.
+    If successful, prints data in the web-server console.
+    """
+    try:
+        clearbit.get_clearbit_data(current_user.email)
+        return {
+            "detail": "Request completed, see the result in the web server console"
+        }
+    except Exception as e:
+        exceptions.raise_clearbit_exception(str(e))

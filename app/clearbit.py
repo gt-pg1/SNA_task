@@ -3,6 +3,15 @@ import json
 
 
 def get_clearbit_data(email):
+    """
+    Fetches user data from Clearbit based on the provided email.
+
+    Args:
+        email (str): The email address of the user.
+
+    Returns:
+        None
+    """
     clearbit_url = f"https://person.clearbit.com/v2/combined/find?email={email}"
 
     headers = {

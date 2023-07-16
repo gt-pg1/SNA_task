@@ -25,7 +25,8 @@ def get_user_by_username(db: Session, username: str):
 
 def create_user(db: Session, user: schemas.UserCreate):
     """
-    Creates a new user in the database.
+    Creates a new user in the database and
+    fetches additional user data from Clearbit.
 
     Args:
         db (Session): The database session to use.

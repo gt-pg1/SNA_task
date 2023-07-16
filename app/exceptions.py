@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
 
 def raise_http_exception(status_code: int, detail: str, headers: dict = None):
@@ -14,7 +14,11 @@ def raise_username_already_registered():
 
 
 def raise_incorrect_username_or_password():
-    raise_http_exception(401, "Incorrect username or password", {"WWW-Authenticate": "Bearer"})
+    raise_http_exception(
+        401,
+        "Incorrect username or password",
+        {"WWW-Authenticate": "Bearer"}
+    )
 
 
 def raise_post_not_found():
@@ -26,7 +30,11 @@ def raise_not_enough_permissions():
 
 
 def raise_credentials_exception():
-    raise_http_exception(401, "Token expired or invalid", {"WWW-Authenticate": "Bearer"})
+    raise_http_exception(
+        401,
+        "Token expired or invalid",
+        {"WWW-Authenticate": "Bearer"}
+    )
 
 
 def raise_like_own_post():
@@ -39,3 +47,7 @@ def raise_already_liked():
 
 def raise_like_not_found():
     raise_http_exception(404, "Like not found")
+
+
+def raise_clearbit_exception(e):
+    raise_http_exception(400, e)
