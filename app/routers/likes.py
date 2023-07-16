@@ -22,6 +22,10 @@ def add_like(
         db: Session = Depends(database.get_db),
         current_user: schemas.User = Depends(dependencies.get_current_user)
 ) -> Dict[str, Any]:
+    """
+    Add a like to a specific post.
+    If successful, returns the status message.
+    """
     post = crud.get_post(db, post_id)
 
     if not post:
@@ -60,6 +64,10 @@ def remove_like(
         db: Session = Depends(database.get_db),
         current_user: schemas.User = Depends(dependencies.get_current_user)
 ) -> Dict[str, Any]:
+    """
+    Remove a like from a specific post.
+    If successful, returns the status message.
+    """
     like = crud.get_like_by_user_and_post(
         db,
         user_id=current_user.id,

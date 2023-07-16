@@ -9,6 +9,19 @@ router = APIRouter()
 
 
 def get_post_by_id(db: Session, post_id: int):
+    """
+    Get a specific post by ID from the database.
+
+    Args:
+        db (Session): The database session to use.
+        post_id (int): The ID of the post to retrieve.
+
+    Returns:
+        Post: The retrieved Post object.
+
+    Raises:
+        PostNotFoundException: If the post with the specified ID is not found.
+    """
     post = crud.get_post(db, post_id)
     if not post:
         exceptions.raise_post_not_found()
@@ -22,6 +35,10 @@ def read_post(
         post_id: int,
         current_user: models.User = Depends(dependencies.get_current_user)
 ):
+    """
+    Get a specific post by ID.
+    Returns the post if found.
+    """
     post = get_post_by_id(db, post_id)
     return post
 
@@ -34,6 +51,10 @@ def read_posts(
         limit: int = 100,
         current_user: models.User = Depends(dependencies.get_current_user)
 ):
+    """
+    Get multiple posts.
+    Returns a list of posts.
+    """
     posts = crud.get_posts(db, skip=skip, limit=limit)
     return posts
 
@@ -45,6 +66,10 @@ def create_post(
         post_in: schemas.PostCreate,
         current_user: models.User = Depends(dependencies.get_current_user)
 ):
+    """
+    Create a new post.
+    Returns the created post.
+    """
     post = crud.create_post(
         db=db,
         post=post_in,
@@ -60,6 +85,10 @@ def update_post(
         post_id: int, post_in: schemas.PostCreate,
         current_user: models.User = Depends(dependencies.get_current_user)
 ):
+    """
+    Update an existing post by ID.
+    Returns the updated post.
+    """
     post = get_post_by_id(db, post_id)
     if not post:
         exceptions.raise_post_not_found()
@@ -76,6 +105,10 @@ def delete_post(
         post_id: int,
         current_user: models.User = Depends(dependencies.get_current_user)
 ):
+    """
+    Delete a post by ID.
+    Returns a message indicating the deletion status.
+    """
     post = get_post_by_id(db, post_id)
     if post.user_id != current_user.id:
         exceptions.raise_not_enough_permissions()
@@ -94,6 +127,11 @@ def get_likes(
         db: Session = Depends(database.get_db),
         current_user: models.User = Depends(dependencies.get_current_user)
 ):
+    """
+    Get the likes and dislikes for a specific post.
+    Returns a dictionary with 'likes' and 'dislikes' keys,
+    each containing a list of user IDs.
+    """
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if not post:
         exceptions.raise_post_not_found()

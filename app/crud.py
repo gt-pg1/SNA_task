@@ -5,6 +5,16 @@ import main
 
 
 def get_user_by_username(db: Session, username: str):
+    """
+    Fetches a user by the username from the database.
+
+    Args:
+        db (Session): The database session to use.
+        username (str): The username of the user.
+
+    Returns:
+        User: The User object if found.
+    """
     user = db.query(
         models.User
     ).filter(
@@ -14,6 +24,16 @@ def get_user_by_username(db: Session, username: str):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
+    """
+    Creates a new user in the database.
+
+    Args:
+        db (Session): The database session to use.
+        user (schemas.UserCreate): The user data.
+
+    Returns:
+        User: The newly created User object.
+    """
     db_user = models.User(
         username=user.username,
         email=user.email,
@@ -26,6 +46,20 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 
 def authenticate_user(db: Session, username: str, password: str):
+    """
+    Authenticates a user by username and password.
+
+    Args:
+        db (Session): The database session to use.
+        username (str): The username of the user.
+        password (str): The password of the user.
+
+    Returns:
+        User: The authenticated User object.
+
+    Raises:
+        ValueError: If the authentication fails.
+    """
     user = get_user_by_username(db, username)
     verify_password = security.verify_password(password, user.hashed_password)
     if not user or not verify_password:
@@ -34,6 +68,16 @@ def authenticate_user(db: Session, username: str, password: str):
 
 
 def get_post(db: Session, post_id: int):
+    """
+    Retrieves a post by its ID from the database.
+
+    Args:
+        db (Session): The database session to use.
+        post_id (int): The ID of the post.
+
+    Returns:
+        Post: The Post object if found.
+    """
     post = db.query(
         models.Post
     ).filter(
@@ -43,6 +87,17 @@ def get_post(db: Session, post_id: int):
 
 
 def get_posts(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Retrieves a list of posts from the database.
+
+    Args:
+        db (Session): The database session to use.
+        skip (int, optional): Number of posts to skip. Defaults to 0.
+        limit (int, optional): Maximum number of posts to return. Defaults to 100.
+
+    Returns:
+        List[Post]: List of Post objects.
+    """
     posts = db.query(
         models.Post
     ).offset(
@@ -54,6 +109,17 @@ def get_posts(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_post(db: Session, post: schemas.PostCreate, user_id: int):
+    """
+    Creates a new post in the database.
+
+    Args:
+        db (Session): The database session to use.
+        post (schemas.PostCreate): The post data.
+        user_id (int): The ID of the user who is creating the post.
+
+    Returns:
+        Post: The newly created Post object.
+    """
     db_post = models.Post(**post.model_dump(), user_id=user_id)
     db.add(db_post)
     db.commit()
@@ -62,6 +128,16 @@ def create_post(db: Session, post: schemas.PostCreate, user_id: int):
 
 
 def delete_post(db: Session, post_id: int):
+    """
+    Deletes a post by its ID from the database.
+
+    Args:
+        db (Session): The database session to use.
+        post_id (int): The ID of the post.
+
+    Returns:
+        bool: True if the post was deleted, False otherwise.
+    """
     db_post = get_post(db, post_id)
     if db_post is not None:
         db.delete(db_post)
@@ -71,6 +147,17 @@ def delete_post(db: Session, post_id: int):
 
 
 def update_post(db: Session, post_id: int, post_in: schemas.PostCreate):
+    """
+    Updates a post by its ID in the database.
+
+    Args:
+        db (Session): The database session to use.
+        post_id (int): The ID of the post.
+        post_in (schemas.PostCreate): The new post data.
+
+    Returns:
+        Post: The updated Post object.
+    """
     db_post = get_post(db, post_id)
     if db_post is None:
         return False
@@ -91,6 +178,16 @@ def update_post(db: Session, post_id: int, post_in: schemas.PostCreate):
 
 
 def get_likes(db: Session, post_id: int):
+    """
+    Retrieves likes for a post by its ID from the database.
+
+    Args:
+        db (Session): The database session to use.
+        post_id (int): The ID of the post.
+
+    Returns:
+        List[Like]: List of Like objects.
+    """
     key = f"post:{post_id}:likes"
     likes_from_redis = main.r.hgetall(key)
 
@@ -122,6 +219,17 @@ def get_likes(db: Session, post_id: int):
 
 
 def get_like_by_user_and_post(db: Session, user_id: int, post_id: int):
+    """
+    Retrieves a like by user and post IDs from the database.
+
+    Args:
+        db (Session): The database session to use.
+        user_id (int): The ID of the user.
+        post_id (int): The ID of the post.
+
+    Returns:
+        dict: Dictionary containing like data.
+    """
     like_value = get_redis_like(post_id, user_id)
 
     if like_value is not None:
@@ -141,6 +249,17 @@ def get_like_by_user_and_post(db: Session, user_id: int, post_id: int):
 
 
 def create_like(db: Session, like: schemas.LikeCreate, user_id: int):
+    """
+    Creates a new like in the database.
+
+    Args:
+        db (Session): The database session to use.
+        like (schemas.LikeCreate): The like data.
+        user_id (int): The ID of the user who is creating the like.
+
+    Returns:
+        Like: The newly created Like object.
+    """
     db_like = models.Like(**like.model_dump(), user_id=user_id)
     db.add(db_like)
     db.commit()
@@ -149,6 +268,17 @@ def create_like(db: Session, like: schemas.LikeCreate, user_id: int):
 
 
 def delete_like(db: Session, post_id: int, user_id: int):
+    """
+    Deletes a like by user and post IDs from the database.
+
+    Args:
+        db (Session): The database session to use.
+        post_id (int): The ID of the post.
+        user_id (int): The ID of the user.
+
+    Returns:
+        dict: Dictionary containing the result message.
+    """
     like = db.query(
         models.Like
     ).filter(
@@ -166,6 +296,16 @@ def delete_like(db: Session, post_id: int, user_id: int):
 
 
 def get_redis_like(post_id: int, user_id: int):
+    """
+    Retrieves a like by user and post IDs from the Redis cache.
+
+    Args:
+        post_id (int): The ID of the post.
+        user_id (int): The ID of the user.
+
+    Returns:
+        int: The like value if found, else None.
+    """
     key = f"post:{post_id}:likes"
     field = f"user:{user_id}"
     value = main.r.hget(key, field)
@@ -173,12 +313,27 @@ def get_redis_like(post_id: int, user_id: int):
 
 
 def save_redis_like(post_id: int, user_id: int, value: int):
+    """
+    Saves a like by user and post IDs to the Redis cache.
+
+    Args:
+        post_id (int): The ID of the post.
+        user_id (int): The ID of the user.
+        value (int): The like value.
+    """
     key = f"post:{post_id}:likes"
     field = f"user:{user_id}"
     main.r.hset(key, field, value)
 
 
 def remove_redis_like(post_id: int, user_id: int):
+    """
+    Removes a like by user and post IDs from the Redis cache.
+
+    Args:
+        post_id (int): The ID of the post.
+        user_id (int): The ID of the user.
+    """
     key = f"post:{post_id}:likes"
     field = f"user:{user_id}"
     main.r.hdel(key, field)
