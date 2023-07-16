@@ -26,6 +26,9 @@ def add_like(
     Add a like to a specific post.
     If successful, returns the status message.
     """
+    if like.value not in (1, -1):
+        exceptions.raise_like_value_error()
+
     post = crud.get_post(db, post_id)
 
     if not post:

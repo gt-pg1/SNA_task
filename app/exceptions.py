@@ -53,6 +53,10 @@ def raise_like_not_found():
     raise_http_exception(404, "Like not found")
 
 
+def raise_like_value_error():
+    raise_http_exception(400, "Like value can be 1 (like) or -1 (dislike)")
+
+
 def raise_clearbit_exception(e):
     raise_http_exception(400, e)
 
