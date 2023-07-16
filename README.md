@@ -59,8 +59,22 @@ After starting the project, you can access the API documentation by navigating t
 
 Alternatively, you can use the Postman collection [template](https://www.postman.com/spacecraft-participant-12459094/workspace/sna-public/collection/24461590-2ab93b8b-9023-4a1f-a836-af138563fca5?action=share&creator=24461590) for API request examples.
 
+To use your own Postman environment, you need to fork the collection. Right-click on the collection and select Create a Fork, or use the keyboard shortcut Ctrl + Alt + F. Name your fork and choose your workspace, then click the Fork button. This allows you to change the Bearer token according to your needs without affecting the original collection.
+
 Once you've created an account, don't forget to add your token in the Postman collection settings under the `Post and auth` section, `Authorization` tab, `Type`: `Bearer Token`.
 
+## Instructions for testing Redis likes caching
+
+In this application, the Redis database is used for caching likes of posts. You can directly interact with the Redis database through the Redis command-line interface (CLI) to inspect the data in Redis:
+
+-   Start the Redis CLI by running the `redis-cli` command in your terminal.
+    
+-   To view all keys in the Redis cache, use the `keys *` command. This should display a list of all keys currently stored in your Redis instance.
+    
+-   To retrieve a specific like, you can use the `HGET` command with the corresponding key and field. For example, if you have a post with ID 1 and a user with ID 1, you can retrieve the like using the command `HGET post:1:likes user:1`.
+    
+- Once you're in the Redis CLI, you can use the `HGETALL` command with the corresponding key to retrieve all likes from a specific post. For example, to retrieve all likes from a post with ID 1, you can use the command `HGETALL post:1:likes`.
+    
 ## Clearbit
 
 To test the Clearbit functionality, you can use `alex@clearbit.com` during registration (the result will be output to the console). This email address is also embedded in the Postman collection for testing. After signing in, you can access the route `http://localhost:8000/api/clearbit` and send a GET request. The console will output the data related to the currently active user.
