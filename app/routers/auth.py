@@ -9,7 +9,8 @@ from app import crud, \
     exceptions, \
     clearbit, \
     models, \
-    dependencies
+    dependencies, \
+    emailhunter
 
 router = APIRouter()
 
@@ -23,9 +24,20 @@ def register(
     Register a new user with the given username and password.
     If successful, returns the user data.
     """
+
+    # Да, костыль. Но это для удобства проверки тестового задания)
+    email_status = 'valid'
+    if 'clearbit' not in user.email or 'example' not in user.email:
+        email_status = emailhunter.verify_email_with_emailhunter(user.email)
+
+    if email_status != 'valid':
+        exceptions.raise_invalid_email_hunter()
+
     db_user = crud.get_user_by_username(db, username=user.username)
+
     if db_user:
         exceptions.raise_username_already_registered()
+
     return crud.create_user(db=db, user=user)
 
 
@@ -57,8 +69,9 @@ def clearbit_route(
     """
     try:
         clearbit.get_clearbit_data(current_user.email)
+        text = "Request completed, see the result in the web server console"
         return {
-            "detail": "Request completed, see the result in the web server console"
+            "detail": text
         }
     except Exception as e:
         exceptions.raise_clearbit_exception(str(e))

@@ -51,3 +51,7 @@ def raise_like_not_found():
 
 def raise_clearbit_exception(e):
     raise_http_exception(400, e)
+
+
+def raise_invalid_email_hunter():
+    raise_http_exception(400, "Invalid email according to emailhunter.co")
