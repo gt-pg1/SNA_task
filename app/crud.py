@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app import models, schemas, security
+from app import models, schemas, security, clearbit
 import main
 
 
@@ -42,6 +42,7 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    clearbit.get_clearbit_data(user.email)
     return db_user
 
 
