@@ -3,6 +3,8 @@
 
 Test task that involves implementing a simple RESTful API using FastAPI for a social networking application.
 
+The project was developed on Python 3.10
+
 ## Installation and Setup
 
 ### Redis
